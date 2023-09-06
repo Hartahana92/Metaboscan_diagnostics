@@ -14,6 +14,7 @@ from dash import dash_table
 from dash.dependencies import Input, Output, State
 
 import io
+from io import BytesIO
 
 # import numpy as np
 import pandas as pd
@@ -22,6 +23,7 @@ from dash_table.Format import Format, Scheme
 
 
 import bio_df_processing as helper
+import get_main_figure as gmf
 
 
 app = Dash(__name__, 
@@ -39,6 +41,7 @@ bar_unselected_opacity = 0.8
 # Figure template
 row_heights = [150, 500, 300]
 template = {"layout": {"paper_bgcolor": bgcolor, "plot_bgcolor": bgcolor}}   
+
 
 
 def patient_info(df):
@@ -127,7 +130,7 @@ def metabolit_info(df_in, name = 'Метаболиты'):
             fixed_columns={'headers': True, 'data': 1},
         ),
     ],
-    className = "six columns pretty_container")
+    className = "six columns pretty_container", style={'margin-left':'0px'})
      
     
     
@@ -205,85 +208,19 @@ def models_output(deseases):
             config={ 
                 'displayModeBar': False 
                 } 
-        ) 
-         
-        ], 
-        className="six columns pretty_container",)    
+        )], 
+        className="six columns pretty_container", style={'margin-left':'0px'},)    
    
 
-
-
-#LC part introduction
-def models_output_lc(deseases):
-    """
-    deseases - dict: {'desease name' : desease probability}
-    """
-    categories = list(deseases.keys())[::-1]
-    proba = list(deseases.values())[::-1]
-    
-    colors = []
-    labels = []
-    for cat in categories:
-        colors.append(get_graph_color(deseases[cat]))
-        labels.append(f'<b>{deseases[cat]:.2f} %</b>')
-        
-    fig = {
-        "data": [
-            {
-                "type": "bar",
-                "x": proba,
-                "y": categories,
-                "marker": {
-                    "color": colors,
-                    },
-                "text" : labels,
-                "textposition" : 'inside',
-                "insidetextanchor" : 'middle',
-                "hoverinfo": 'skip',
-            
-                "orientation": "h",
-                "showlegend": False,
-            },
-        ],
-        "layout": {
-            "template": template,
-            "barmode": "overlay",
-            "selectdirection": "v",
-            "height": 60,
-            "margin": {"l": 10, "r": 10, "t": 10, "b": 10},
-            "width" : "90%",
-            "xaxis": {
-                "range": [-1, 100],
-                "automargin": True,
-            },
-            "yaxis": {
-                "type": "category",
-                "categoryorder": "array",
-                "categoryarray": categories,
-                "side": "left",
-                "automargin": True,
-            },
-        },
-    }    
-    
-    return html.Div(children = [
-        html.H3('Рак легкого',
-                style={'text-align':'center'}),
-        html.Label('Классификационная модель построена на основе алгоритма машинного обучения "Случайный Лес"'),
-        html.Br(),
-        html.Label('Метрика качества AUCROC - 92%\n'),
-        dcc.Graph(
-            id='example-graph',
-            figure=fig,
-            config={
-                'displayModeBar': False
-                }
-        )
-        
-        ],
-        className="six columns pretty_container",)
-
-
+def main_figure():
+    fig = gmf.get_plot()
+    # Save it to a temporary buffer.
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+    # Embed the result in the html output.
+    fig_data = base64.b64encode(buf.getbuffer()).decode("ascii")
+    return html.Img(src="data:image/png;base64,{}".format(fig_data),
+                    style={'width':'100%','pointer-events':'none','border-radius':'5px', 'margin-top':'8px'})
 
 
 
@@ -355,14 +292,79 @@ def models_output_lc(deseases):
         )
         
         ],
-        className="six columns pretty_container",)
+        className="six columns pretty_container", style={'margin-left':'0px'},)
 
 
 
-
-
-
-
+#LC part introduction
+def models_output_lc(deseases):
+    """
+    deseases - dict: {'desease name' : desease probability}
+    """
+    categories = list(deseases.keys())[::-1]
+    proba = list(deseases.values())[::-1]
+    
+    colors = []
+    labels = []
+    for cat in categories:
+        colors.append(get_graph_color(deseases[cat]))
+        labels.append(f'<b>{deseases[cat]:.2f} %</b>')
+        
+    fig = {
+        "data": [
+            {
+                "type": "bar",
+                "x": proba,
+                "y": categories,
+                "marker": {
+                    "color": colors,
+                    },
+                "text" : labels,
+                "textposition" : 'inside',
+                "insidetextanchor" : 'middle',
+                "hoverinfo": 'skip',
+            
+                "orientation": "h",
+                "showlegend": False,
+            },
+        ],
+        "layout": {
+            "template": template,
+            "barmode": "overlay",
+            "selectdirection": "v",
+            "height": 60,
+            "margin": {"l": 10, "r": 10, "t": 10, "b": 10},
+            "width" : "90%",
+            "xaxis": {
+                "range": [-1, 100],
+                "automargin": True,
+            },
+            "yaxis": {
+                "type": "category",
+                "categoryorder": "array",
+                "categoryarray": categories,
+                "side": "left",
+                "automargin": True,
+            },
+        },
+    }    
+    
+    return html.Div(children = [
+        html.H3('Рак легкого',
+                style={'text-align':'center'}),
+        html.Label('Классификационная модель построена на основе алгоритма машинного обучения "Случайный Лес"'),
+        html.Br(),
+        html.Label('Метрика качества AUCROC - 92%\n'),
+        dcc.Graph(
+            id='example-graph',
+            figure=fig,
+            config={
+                'displayModeBar': False
+                }
+        )
+        
+        ],
+        className="six columns pretty_container", style={'margin-left':'0px'})
 
 
 
@@ -379,7 +381,7 @@ app.layout = html.Div(children=[
             children=html.Div([
                 'Drag and Drop or ',
                 html.A('Select Files')
-            ]),
+            ], style={'cursor':'pointer'}),
             style={
                 'height': '60px',
                 'lineHeight': '60px',
@@ -388,16 +390,17 @@ app.layout = html.Div(children=[
                 'borderRadius': '5px',
                 'textAlign': 'center',
                 'margin': '10px',
-                'background':  'whitesmoke'
+                'background':  'whitesmoke',
+                'padding': '0px',
             },
             # Allow multiple files to be uploaded
             multiple=True
         )],
-        # className = 'inputPart'
-        className = "six columns pretty_container"
+        # # className = 'inputPart'
+        className = "six columns pretty_container", style={'margin-left':'0px'}
     ),
     html.Br(),
-    
+
     html.Div(children = [],
              id = 'output-data-upload',
              # className = "six columns pretty_container"
@@ -425,14 +428,14 @@ def parse_contents(contents, filename, date):
         print(e)
         return html.Div([
             'There was an error processing this file.'
-        ], className="six columns pretty_container")
+        ], className="six columns pretty_container", style={'margin-left':'0px'})
 
     
     meta_tables = []
     for name, values in groups_content.items():
         meta_tables.append(metabolit_info(profile.loc[values], name=name))
 
-    return html.Div([
+    return html.Div([html.Div([
             html.Div([
                     html.H3(children='Результаты метаболомного профилирования',
                             style = {'textAlign': 'center'
@@ -440,19 +443,38 @@ def parse_contents(contents, filename, date):
                 
                     patient_info(info),
                     ],
-                className="six columns pretty_container"
+                className="six columns pretty_container", style={'margin-left':'0px'}
                 ),
+            main_figure(),
             models_output(desease),
             models_output_lc(desease_lc)
-            
-            ] + meta_tables,
-        )
+            ]  + meta_tables,),
+            html.Div([html.Div(html.P(children='Результаты данного отчета не являются диагнозом и должны быть интерпретированы лечащим врачом на основании клинико-лабораторных данных и других диагностических исследований',
+                             style={'textAlign':'left','font-style':'italic','font-size':'13px','margin-top':'4px'}),style={'width':'52%','display':'inline-block'}),
+                      html.Div([
+                          html.P(children='117418 Москва | Нахимовский проспект, 45',
+                                 style={'textAlign':'right','font-size':'11px','margin':'0px'}),
+
+                          html.P(children='Лаборатория фармакокинетики и метаболомного анализа',
+                                 style={'textAlign':'right','font-weight':'bold','font-size':'11px','margin':'0px'}),
+
+                          html.P(children='Институт трансляционной медицины и биотехнологий',
+                                 style={'textAlign':'right','font-size':'11px','margin':'0px'}),
+
+                          html.P(children='Сеченовского Университета',
+                                 style={'textAlign':'right','font-size':'11px','margin':'0px'})],
+                          style={'width':'48%','display':'inline-block'}),],
+                        style={'width':'100%','display':'flex','margin-top':'10px'}),])
+
+
+    
 
 
 @app.callback(Output('output-data-upload', 'children'),
               Input('upload-data', 'contents'),
               State('upload-data', 'filename'),
-              State('upload-data', 'last_modified'))
+              State('upload-data', 'last_modified'),
+              )
 def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = [

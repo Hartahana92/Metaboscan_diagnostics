@@ -165,7 +165,7 @@ def models_output(deseases):
                     "color": colors, 
                     }, 
                 "text" : labels, 
-                "textposition" : 'inside', 
+                "textposition" : 'outside', 
                 "insidetextanchor" : 'middle', 
                 "hoverinfo": 'skip', 
              
@@ -178,7 +178,7 @@ def models_output(deseases):
             "barmode": "overlay", 
             "selectdirection": "v", 
             "height": 120, 
-            "margin": {"l": 10, "r": 10, "t": 10, "b": 10}, 
+            "margin": {"l": 0.1, "r": 0.1, "t": 0.1, "b": 0.1}, 
             "width" : "90%", 
             "xaxis": { 
                 "range": [-1, 100], 
@@ -197,11 +197,7 @@ def models_output(deseases):
     return html.Div(children = [ 
         html.H3('Сердечно-сосудистые патологии', 
                 style={'text-align':'center'}), 
-        html.Label('Классификационная модель построена на основе алгоритма машинного обучения "Случайный Лес"'), 
         html.Br(), 
-        html.Label('Метрика качества AUCROC первой модели (ССЗ vs Контроль) - 89%\n'), 
-        html.Br(), 
-        html.Label('Метрика качества AUCROC второй модели (ГБ vs ИБС) - 86%\n'), 
         dcc.Graph( 
             id='example-graph', 
             figure=fig, 
@@ -216,11 +212,11 @@ def main_figure():
     fig = gmf.get_plot()
     # Save it to a temporary buffer.
     buf = BytesIO()
-    fig.savefig(buf, format="png")
+    fig.savefig(buf, format="png", dpi=300, bbox_inches='tight')
     # Embed the result in the html output.
     fig_data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return html.Img(src="data:image/png;base64,{}".format(fig_data),
-                    style={'width':'100%','pointer-events':'none','border-radius':'5px', 'margin-top':'8px'})
+    return html.Img(src="data:image/png;base64,{}".format(fig_data), sizes="100% 100%",
+                    style={'width':'100%','pointer-events':'none','border-radius':'5px', 'margin-top':'8px', 'margin-bottom':'8px'})
 
 
 
@@ -251,7 +247,6 @@ def models_output_lc(deseases):
                 "textposition" : 'inside',
                 "insidetextanchor" : 'middle',
                 "hoverinfo": 'skip',
-            
                 "orientation": "h",
                 "showlegend": False,
             },
@@ -260,7 +255,7 @@ def models_output_lc(deseases):
             "template": template,
             "barmode": "overlay",
             "selectdirection": "v",
-            "height": 60,
+            "height": 120,
             "margin": {"l": 10, "r": 10, "t": 10, "b": 10},
             "width" : "90%",
             "xaxis": {
@@ -280,19 +275,16 @@ def models_output_lc(deseases):
     return html.Div(children = [
         html.H3('Рак легкого',
                 style={'text-align':'center'}),
-        html.Label('Классификационная модель построена на основе алгоритма машинного обучения "Случайный Лес"'),
         html.Br(),
-        html.Label('Метрика качества AUCROC - 92%\n'),
         dcc.Graph(
             id='example-graph',
             figure=fig,
             config={
                 'displayModeBar': False
-                }
+                }, style = {'height':'100%'}
         )
-        
         ],
-        className="six columns pretty_container", style={'margin-left':'0px'},)
+        className="six columns pretty_container", style={"hight":"40",'margin-left':'0px'},)
 
 
 
@@ -320,7 +312,7 @@ def models_output_lc(deseases):
                     "color": colors,
                     },
                 "text" : labels,
-                "textposition" : 'inside',
+                "textposition" : 'outside',
                 "insidetextanchor" : 'middle',
                 "hoverinfo": 'skip',
             
@@ -332,8 +324,8 @@ def models_output_lc(deseases):
             "template": template,
             "barmode": "overlay",
             "selectdirection": "v",
-            "height": 60,
-            "margin": {"l": 10, "r": 10, "t": 10, "b": 10},
+            "height": 200,
+            "margin": {"l": 10, "r": 10, "t": 10, "b": 2},
             "width" : "90%",
             "xaxis": {
                 "range": [-1, 100],
@@ -350,18 +342,16 @@ def models_output_lc(deseases):
     }    
     
     return html.Div(children = [
-        html.H3('Рак легкого',
+        html.H3('Онкологические заболевания',
                 style={'text-align':'center'}),
-        html.Label('Классификационная модель построена на основе алгоритма машинного обучения "Случайный Лес"'),
         html.Br(),
-        html.Label('Метрика качества AUCROC - 92%\n'),
         dcc.Graph(
             id='example-graph',
             figure=fig,
             config={
                 'displayModeBar': False
                 }
-        )
+        ),html.Br(),
         
         ],
         className="six columns pretty_container", style={'margin-left':'0px'})
@@ -488,4 +478,3 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 # Run the server
 if __name__ == "__main__":
     app.run_server(debug=True)
-    

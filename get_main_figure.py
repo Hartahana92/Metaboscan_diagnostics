@@ -71,7 +71,9 @@ def get_plot():
     plt.hlines(y=4.3, xmin=0, xmax=100, linewidth=3, color='lightgrey')
     plt.hlines(y=6.8, xmin=0, xmax=100, linewidth=3, color='lightgrey')
 
-    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.family'] = 'bahnschrift'
+    plt.rcParams['figure.dpi'] = 300
+    plt.rcParams['savefig.dpi'] = 300
     plt.grid(True, linewidth=0.15, color = 'Grey')
     plt.yticks(c='white')
     plt.xticks(size=7, c='b')
@@ -87,7 +89,7 @@ def get_plot():
             prop = dict(boxstyle='round', facecolor='tomato', alpha=1, edgecolor='r')
         else:
             prop = dict(boxstyle='round', facecolor='lemonchiffon', alpha=1, edgecolor='sienna')
-        plt.text(i_x-4, i_y+0.2, names[n], color = 'black',  bbox=prop, fontsize = 8)
+        plt.text(i_x-4, i_y+0.2, names[n], color = 'black',  bbox=prop, fontsize = 9)
         plt.text(i_x, i_y-0.4, numbers[n], color = 'black',  bbox=number, fontsize = 7)
         n=n+1
 
@@ -103,14 +105,14 @@ def get_plot():
             prop = dict(boxstyle='round', facecolor='lightsalmon', alpha=1, edgecolor='r')
         else:
             prop = dict(boxstyle='round', facecolor='lemonchiffon', alpha=1, edgecolor='sienna')
-        plt.text(i_x-1, i_y+0.3, diseases[n], color = 'black',  bbox=prop, fontsize = 8)
+        plt.text(i_x-1, i_y+0.3, diseases[n], color = 'black',  bbox=prop, fontsize = 9)
         plt.text(i_x, i_y-0.4, numbers_dis[n], color = 'black',  bbox=number, fontsize = 8)
         n=n+1
         
-    plt.text(40, 15, 'Степень риска', color = 'black', fontsize = 10)
-    plt.text(2, 13.5, 'минимальная', fontsize = 9)
-    plt.text(34, 13.5, 'средняя', fontsize = 9)
-    plt.text(80, 13.5, 'высокая', fontsize = 9)
+    plt.text(40, 15.1, 'СТЕПЕНЬ РИСКА', color = 'black', fontsize = 11)
+    plt.text(2, 13.5, 'МИНИМАЛЬНАЯ', fontsize = 9)
+    plt.text(34, 13.5, 'СРЕДНЯЯ', fontsize = 9)
+    plt.text(75, 13.5, 'ВЫСОКАЯ', fontsize = 9)
     for pos in ['top']:
         plt.gca().spines[pos].set_visible(False)
     
@@ -122,7 +124,7 @@ def save_figure():
     fig = get_plot()
     # Save it to a temporary buffer.
     buf = io.BytesIO()
-    fig.savefig(buf, format="png")
+    fig.savefig(buf, format="png", dpi=300)
     fig.close()
     # Embed the result in the html output.
     fig_data = base64.b64encode(buf.getbuffer()).decode("utf8")
@@ -130,4 +132,3 @@ def save_figure():
     fig_main_matplotlib = f'bio-master:main_png;base64,{fig_data}'
     return fig_main_matplotlib
 
-get_plot()

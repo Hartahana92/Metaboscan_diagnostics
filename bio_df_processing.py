@@ -139,6 +139,11 @@ def prepare_data(raw_dataframe):
     
     return info, df, groups_content
 
+def desease_prediction_cvd(profile):
+    res_cvd = dict()
+    cvd_proba = 94
+    res_cvd['ССЗ'] = cvd_proba
+    return res_cvd
 
 def desease_prediction(profile):
     """
@@ -156,7 +161,7 @@ def desease_prediction(profile):
     heart_des_proba=94
 
     res = dict()
-    res['ССЗ'] = heart_des_proba
+    # res['ССЗ'] = heart_des_proba
     
     if heart_des_proba >= 70:
         # loaded_model2 = pickle.load(open('RF_second_model_1911.pkl', 'rb'))
@@ -170,12 +175,15 @@ def desease_prediction(profile):
         # IBS_proba = float(c[:,0])*100
         GB_proba=78
         IBS_proba=20
+        HSN_proba=10
         if GB_proba > 60:
             res['ГБ'] = GB_proba
             res['ИБС']  = IBS_proba
+            res['ХСН'] = HSN_proba
         else:
             res['ИБС'] = IBS_proba
             res['ГБ'] = GB_proba
+            res['ХСН'] = HSN_proba
 
     return res
     
@@ -193,11 +201,19 @@ def desease_prediction_lc(profile):
     # data1= preprocessing.normalize(data1, norm='l2')
     # a = loaded_model.predict_proba(data1)
     # heart_des_proba = float(a[:,1])*100
-    lc_des_proba=10
+    lc_des_proba=6
+    kc_des_proba=5
+    crc_des_proba=2
+    pc_des_proba=0
 
-    res_lc = dict()
-    res_lc['Рак легкого'] = lc_des_proba
-    return res_lc
+    res_cancer = dict()
+    
+    
+    res_cancer['Рак легкого'] = lc_des_proba
+    res_cancer['Рак почки'] = kc_des_proba
+    res_cancer['Колоректальный\nрак'] = crc_des_proba
+    res_cancer['Рак простаты'] = pc_des_proba
+    return res_cancer
 
 
 
@@ -213,6 +229,13 @@ if __name__ == '__main__':
     
     pd.set_option('display.max_columns', None)
     print(profile.head(10))
+    
+    desease_cvd = desease_prediction_cvd(profile)
+    print(desease_cvd)
+    
+    categories = deseases.keys()
+    proba = deseases.values()
+    print(list(categories), list(proba))
     
     deseases = desease_prediction(profile)
     print(deseases)

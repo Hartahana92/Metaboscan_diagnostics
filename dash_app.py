@@ -46,14 +46,14 @@ template = {"layout": {"paper_bgcolor": bgcolor, "plot_bgcolor": bgcolor}}
 
 def patient_info(df):
     return html.Div(children=[
-        html.H5('Информация о пациенте'),
+        html.H5('Информация о пациенте', style = {'fontSize' : 16, 'font-family' : 'sans-serif'}),
         dash_table.DataTable(
             columns=[{"name": str(i), "id": str(i)} for i in df.columns],
             data = df.to_dict('records'),
             style_header={
-                'fontWeight': 'bold',
+                'fontWeight': 'bold'
                 },
-            style_cell = {'font-family':'sans-serif', 'fontSize':12, },
+            style_cell = {'textAlign': 'center','font-family':'sans-serif', 'fontSize':16},
             id = 'patient_info_table'
         )
     ])
@@ -72,7 +72,7 @@ def metabolit_info(df_in, name = 'Метаболиты'):
     
     return html.Div(children=[
         html.H3(name,
-                style={'text-align':'center'}),
+                style={'text-align':'center','fontSize' : 20, 'font-family' : 'sans-serif'}),
         dash_table.DataTable(
             id = 'metabolit-table',
             columns=[{"name": str(i), "id": str(i), 
@@ -84,7 +84,7 @@ def metabolit_info(df_in, name = 'Метаболиты'):
                 'textAlign': 'center'},
             style_cell={
                 'textAlign': 'center',
-                'fontSize':12, 
+                'fontSize':14, 
                 'font-family':'sans-serif'
             },
             style_data_conditional=[                
@@ -142,6 +142,66 @@ def get_graph_color(value, b = 50):
     g = 255 - r
     return f'rgb({r},{g},{b})'
 
+def models_output_cvd(deseases): 
+    """ 
+    deseases - dict: {'desease name' : desease probability} 
+    """ 
+    categories = list(deseases.keys())[::-1] 
+    proba = list(deseases.values())[::-1] 
+     
+    colors = [] 
+    labels = [] 
+    for cat in categories: 
+        colors.append(get_graph_color(deseases[cat])) 
+        labels.append(f'<b>{deseases[cat]:.2f} %</b>') 
+         
+    fig = { 
+        "data": [ 
+            { 
+                "type": "bar", 
+                "x": proba, 
+                "y": categories, 
+                "marker": { 
+                    "color": colors, 
+                    }, 
+                "text" : labels, 
+                "textposition" : 'outside', 
+                "insidetextanchor" : 'middle', 
+                "hoverinfo": 'skip', 
+             
+                "orientation": "h", 
+                "showlegend": False, 
+            }, 
+        ], 
+        "layout": { 
+            "template": template, 
+            "barmode": "overlay", 
+            "selectdirection": "v", 
+            "height": 55, 
+            "margin": {"l": 10, "r": 10, "t": 10, "b": 10}, 
+            "width" : "90%", 
+            "xaxis": { 
+                "range": [-1, 100], 
+                "automargin": True, 
+            }, 
+            "yaxis": { 
+                "type": "category", 
+                "categoryorder": "array", 
+                "categoryarray": categories, 
+                "side": "left", 
+                "automargin": True, 
+            }, 
+        }, 
+    } 
+    
+    return dcc.Graph( 
+            id='example-graph', 
+            figure=fig, 
+            config={ 
+                'displayModeBar': False 
+                } 
+        )
+
 def models_output(deseases): 
     """ 
     deseases - dict: {'desease name' : desease probability} 
@@ -178,7 +238,7 @@ def models_output(deseases):
             "barmode": "overlay", 
             "selectdirection": "v", 
             "height": 120, 
-            "margin": {"l": 0.1, "r": 0.1, "t": 0.1, "b": 0.1}, 
+            "margin": {"l": 10, "r": 10, "t": 10, "b": 10}, 
             "width" : "90%", 
             "xaxis": { 
                 "range": [-1, 100], 
@@ -194,18 +254,12 @@ def models_output(deseases):
         }, 
     }     
      
-    return html.Div(children = [ 
-        html.H3('Сердечно-сосудистые патологии', 
-                style={'text-align':'center'}), 
-        html.Br(), 
-        dcc.Graph( 
+    return  dcc.Graph( 
             id='example-graph', 
             figure=fig, 
             config={ 
                 'displayModeBar': False 
-                } 
-        )], 
-        className="six columns pretty_container", style={'margin-left':'0px'},)    
+                }, style = {'margin-top':'10px'}  )
    
 
 def main_figure():
@@ -215,76 +269,11 @@ def main_figure():
     fig.savefig(buf, format="png", dpi=300, bbox_inches='tight')
     # Embed the result in the html output.
     fig_data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return html.Img(src="data:image/png;base64,{}".format(fig_data), sizes="100% 100%",
-                    style={'width':'100%','pointer-events':'none','border-radius':'5px', 'margin-top':'8px', 'margin-bottom':'8px'})
+    return html.Div(children = html.Div([
+        html.Img(src="data:image/png;base64,{}".format(fig_data), sizes="100%100%",
+                    style={'width':'100%','border-radius':'5px 5px 0px 0px', 'margin-top':'8px', 'margin-bottom':'-10px'}),
+        html.Img(src = 'assets/legend_full.png', style={'width':'100%','border-radius':'0px 0px 5px 5px'})]))
 
-
-
-#LC part introduction
-def models_output_lc(deseases):
-    """
-    deseases - dict: {'desease name' : desease probability}
-    """
-    categories = list(deseases.keys())[::-1]
-    proba = list(deseases.values())[::-1]
-    
-    colors = []
-    labels = []
-    for cat in categories:
-        colors.append(get_graph_color(deseases[cat]))
-        labels.append(f'<b>{deseases[cat]:.2f} %</b>')
-        
-    fig = {
-        "data": [
-            {
-                "type": "bar",
-                "x": proba,
-                "y": categories,
-                "marker": {
-                    "color": colors,
-                    },
-                "text" : labels,
-                "textposition" : 'inside',
-                "insidetextanchor" : 'middle',
-                "hoverinfo": 'skip',
-                "orientation": "h",
-                "showlegend": False,
-            },
-        ],
-        "layout": {
-            "template": template,
-            "barmode": "overlay",
-            "selectdirection": "v",
-            "height": 120,
-            "margin": {"l": 10, "r": 10, "t": 10, "b": 10},
-            "width" : "90%",
-            "xaxis": {
-                "range": [-1, 100],
-                "automargin": True,
-            },
-            "yaxis": {
-                "type": "category",
-                "categoryorder": "array",
-                "categoryarray": categories,
-                "side": "left",
-                "automargin": True,
-            },
-        },
-    }    
-    
-    return html.Div(children = [
-        html.H3('Рак легкого',
-                style={'text-align':'center'}),
-        html.Br(),
-        dcc.Graph(
-            id='example-graph',
-            figure=fig,
-            config={
-                'displayModeBar': False
-                }, style = {'height':'100%'}
-        )
-        ],
-        className="six columns pretty_container", style={"hight":"40",'margin-left':'0px'},)
 
 
 
@@ -324,7 +313,7 @@ def models_output_lc(deseases):
             "template": template,
             "barmode": "overlay",
             "selectdirection": "v",
-            "height": 200,
+            "height": 150,
             "margin": {"l": 10, "r": 10, "t": 10, "b": 2},
             "width" : "90%",
             "xaxis": {
@@ -343,8 +332,7 @@ def models_output_lc(deseases):
     
     return html.Div(children = [
         html.H3('Онкологические заболевания',
-                style={'text-align':'center'}),
-        html.Br(),
+                style={'text-align':'center','fontSize' : 20, 'font-family' : 'sans-serif'}),
         dcc.Graph(
             id='example-graph',
             figure=fig,
@@ -359,19 +347,23 @@ def models_output_lc(deseases):
 
 
 app.layout = html.Div(children=[
-    html.H1(children='Скрининговая система диагностики патологий',
-            style = {'textAlign': 'center'
-                }),
-
+    html.Div([html.Div([html.Img(src ='assets/NCMU_logo.jpeg',
+                             style={'width':'100px','height':'110px'}),
+                       html.Img(src ='assets/sechenov_logo(1).png',
+                             style={'width':'110px', 'height':'110px', 'margin-left':'16px'})],style={'width':'50%','display':'inline-block'}),
+                      html.Div([
+                          html.Img(src ='assets/metaboscan_logo.png',
+                                 style={'float':'right','width':'200px','margin-top':'25px'})],
+                          style={'width':'50%','display':'inline-block'}),],
+                        style={'width':'100%','display':'flex','margin-top':'10px'}),
+    html.H1(children='Скрининговая система диагностики патологий'),
     html.Div(children=['''
         Загрузите файл с результатами метаболомного профиля
     ''',
         dcc.Upload(
             id='upload-data',
-            children=html.Div([
-                'Drag and Drop or ',
-                html.A('Select Files')
-            ], style={'cursor':'pointer'}),
+            children=html.Div(
+                'Загрузите данные', style={'cursor':'pointer'}),
             style={
                 'height': '60px',
                 'lineHeight': '60px',
@@ -412,6 +404,7 @@ def parse_contents(contents, filename, date):
             
         info, profile, groups_content = helper.prepare_data(df)
         
+        desease_cvd = helper.desease_prediction_cvd(profile)
         desease = helper.desease_prediction(profile)
         desease_lc=helper.desease_prediction_lc(profile)
     except Exception as e:
@@ -424,19 +417,26 @@ def parse_contents(contents, filename, date):
     meta_tables = []
     for name, values in groups_content.items():
         meta_tables.append(metabolit_info(profile.loc[values], name=name))
-
     return html.Div([html.Div([
-            html.Div([
+            html.Div([ 
                     html.H3(children='Результаты метаболомного профилирования',
-                            style = {'textAlign': 'center'
-                                }),        
+                            style = {'textAlign': 'center', 'font-family' : "sans-serif"
+                                }),
+                    html.Br(),         
                 
                     patient_info(info),
                     ],
                 className="six columns pretty_container", style={'margin-left':'0px'}
                 ),
             main_figure(),
-            models_output(desease),
+            
+            html.Div(children = [ 
+        html.H3('Сердечно-сосудистые патологии', 
+                style={'text-align':'center','fontSize' : 20, 'font-family' : 'sans-serif'}), 
+        models_output_cvd(desease_cvd),
+        models_output(desease)],
+        className="six columns pretty_container", style={'margin-left':'0px'},),
+
             models_output_lc(desease_lc)
             ]  + meta_tables,),
             html.Div([html.Div(html.P(children='Результаты данного отчета не являются диагнозом и должны быть интерпретированы лечащим врачом на основании клинико-лабораторных данных и других диагностических исследований',
@@ -457,7 +457,7 @@ def parse_contents(contents, filename, date):
                         style={'width':'100%','display':'flex','margin-top':'10px'}),])
 
 
-    
+ 
 
 
 @app.callback(Output('output-data-upload', 'children'),

@@ -356,15 +356,20 @@ app.layout = html.Div(children=[
                                  style={'float':'right','width':'200px','margin-top':'25px'})],
                           style={'width':'50%','display':'inline-block'}),],
                         style={'width':'100%','display':'flex','margin-top':'10px'}),
-    html.H1(children='Скрининговая система диагностики патологий'),
-    html.Div(children=['''
+    html.H1(children='Скрининговая система диагностики патологий', style = {'textAlign': 'center', 'color' : '#000036',
+                                                                            'fontSize' : 33,'margin-top':'10px',
+                                                                            'margin-bottom':'10px', 'border-radius':'5px',
+                                                                            'margin-left':'0px'},
+            className = "six columns pretty_container"),
+    html.Div(children=[html.Div('''
         Загрузите файл с результатами метаболомного профиля
-    ''',
+    ''', style = {'margin-left':'10px'}),
         dcc.Upload(
             id='upload-data',
             children=html.Div(
-                'Загрузите данные', style={'cursor':'pointer'}),
+                'Загрузите данные',
             style={
+                'cursor':'pointer',
                 'height': '60px',
                 'lineHeight': '60px',
                 'borderWidth': '1px',
@@ -374,12 +379,12 @@ app.layout = html.Div(children=[
                 'margin': '10px',
                 'background':  'whitesmoke',
                 'padding': '0px',
-            },
+            }),
             # Allow multiple files to be uploaded
             multiple=True
         )],
         # # className = 'inputPart'
-        className = "six columns pretty_container", style={'margin-left':'0px'}
+        className = "six columns pretty_container", style={'border-radius':'0px 0px 5px 5px','margin-left':'0px'}
     ),
     html.Br(),
 

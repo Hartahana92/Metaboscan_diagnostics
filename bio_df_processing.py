@@ -141,7 +141,7 @@ def prepare_data(raw_dataframe):
 
 def desease_prediction_cvd(profile):
     res_cvd = dict()
-    cvd_proba = 94
+    cvd_proba = 78
     res_cvd['ССЗ'] = cvd_proba
     return res_cvd
 
@@ -158,7 +158,7 @@ def desease_prediction(profile):
     # data1= preprocessing.normalize(data1, norm='l2')
     # a = loaded_model.predict_proba(data1)
     # heart_des_proba = float(a[:,1])*100
-    heart_des_proba=94
+    heart_des_proba=78
 
     res = dict()
     # res['ССЗ'] = heart_des_proba
@@ -173,8 +173,8 @@ def desease_prediction(profile):
         # c = loaded_model2.predict_proba(data2)
         # GB_proba = float(c[:,1])*100
         # IBS_proba = float(c[:,0])*100
-        GB_proba=78
-        IBS_proba=20
+        GB_proba=68
+        IBS_proba=22
         HSN_proba=10
         if GB_proba > 60:
             res['ГБ'] = GB_proba
